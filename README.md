@@ -102,17 +102,16 @@ const client = new Redis();
 ### About middleware type rate limiters
 
 Options for middleware type rate limiter:
-
 1. duration - Number of seconds for which requests info should be remembered.
 2. points - Maximum number of points that can be consumed over the duration window.
 3. amount - Number of points to be consumed for each request.
 4. keyGenerator - Function that generates unique identifer against which limit will be applied.
 5. handler - Function to handle the rejection. 
 6. limiterPrefix - Which prefix should be used for the redis keys created by this limiter.
-7. algorithm - Type of algorithm to be used for the rate limiter
-8. If algorithm is sliding-window-counter:
-    window time is broken into small time intervals(buckets). Logs are maintained for each bucket. 
-    windowLogInterval = bucket size. 
+7. algorithm - Type of algorithm to be used for the rate limiter. Values can be - **"fixed-window"**, **"sliding-window"**, **"sliding-window-counter"**
+8. windowLogInterval - bucket size (Only applicable for sliding-window-counter algorithm)
+    window time is broken into small time intervals(buckets). Logs are maintained for each bucket.
+    If not provided, it will calculate suitable bucket size for the time window duration defined and use it as windowLogInterval.
     Refer sliding window counter algorithm for more details.
 
 <br />
@@ -125,6 +124,7 @@ Default options for middleware type rate limiter:
     amount: 1,
     duration: 3600,
     limiterPrefix: "RLMiddleware:",
+    algorithm: "sliding-window-counter",
     keyGenerator: (req) => req.ip,
     handler: function (req, res, next) {
         res.status(429).send("Too many requests, please try again later.");
@@ -171,11 +171,10 @@ app.get('/slidingwindowcountermw/:userId', swcRateLimiterMW, async (req, res) =>
 ### About normal rate limiters
 
 Options for normal rate limiters:
-
 1. duration - Number of seconds for which requests info should be remembered.
 2. points - Maximum number of points that can be consumed over the duration window.
 3. limiterPrefix - Which prefix should be used for the redis keys created by this limiter.
-4. algorithm - Type of algorithm to be used for the rate limiter
+4. algorithm - Type of algorithm to be used for the rate limiter. Values can be - **"fixed-window"**, **"sliding-window"**, **"sliding-window-counter"**
 5. windowLogInterval - bucket size (Only applicable for sliding-window-counter algorithm)
     window time is broken into small time intervals(buckets). Logs are maintained for each bucket.
     If not provided, it will calculate suitable bucket size for the time window duration defined and use it as windowLogInterval.
@@ -184,7 +183,6 @@ Options for normal rate limiters:
 <br />
 
 Documentation about params of **"consume"** function:
-
 1. id - The identifier that need to be used to limit against.
 2. amount - How many points need to be consumed for the request.
 3. justCheck - To just check if limit can be satisifed or not without consuming points. 
@@ -230,17 +228,18 @@ Using normal ratelimiter with sliding window counter algorithm:
  * mechanism handle that.
  * Refer sliding window counter algorithm for more details.
  */
-app.get('/slidingwindowcounter/:userId', async (req, res) => {
-    let rateLimiterOptions = {
-        "duration": 60,
-        "limiterPrefix": "RL60:SWC",
-        "points": 3,
-        "windowLogInterval": 2,
-        "algorithm": "sliding-window-counter",
-        "redisClient": client
-    };
+ 
+let rateLimiterOptions = {
+    "duration": 60,
+    "limiterPrefix": "RL60:SWC",
+    "points": 3,
+    "windowLogInterval": 2,
+    "algorithm": "sliding-window-counter",
+    "redisClient": client
+};
+let rateLimiter = new CustomRateLimiter(rateLimiterOptions);
 
-    let rateLimiter = new CustomRateLimiter(rateLimiterOptions);
+app.get('/slidingwindowcounter/:userId', async (req, res) => {
     let userId = req && req.params && req.params.userId || "someuserid";
     let validateP = rateLimiter.consume(userId, undefined, false);
 
