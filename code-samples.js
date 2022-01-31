@@ -21,7 +21,7 @@ client.on('connect', function () {
     console.log('Connected!'); // Connected!
 });
 
-// ---------------Documentation for normal rate limiters-----------------
+// ---------------Documentation for middleware rate limiters-----------------
 
 /**
  * * Options for middleware usage limiter:
@@ -33,8 +33,10 @@ client.on('connect', function () {
  * 6. limiterPrefix - Which prefix should be used for the redis keys created by this limiter.
  * 7. algorithm - Type of algorithm to be used for the rate limiter
  * 8. If algorithm is sliding-window-counter:
- *      windowLogInterval - Duration of sub window. Refer sliding window counter algorithm for more details.
- * */
+ *      window time is broken into small time intervals(buckets). Logs are maintained for each bucket. 
+ *      windowLogInterval = bucket size. 
+ *      Refer sliding window counter algorithm for more details. 
+ */
 
 // Initializing middleware type ratelimiter with fixed window algorithm
 let fwRateLimiterMWOptions = {
