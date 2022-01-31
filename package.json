@@ -15,13 +15,23 @@
     "sliding window",
     "sliding window counter",
     "fixed window",
+    "rolling window",
     "multiple algorithms",
     "multiple ratelimits",
     "custom ratelimits",
     "middleware ratelimits",
-    "express rate limits",
-    "redis rate limits"
+    "express ratelimits",
+    "redis ratelimits"
   ],
-  "author": "Naveen Chelimilla",
+  "author": {
+    "name": "Naveen Chelimilla",
+    "email": "chelimilla.naveen@gmail.com",
+    "url": "https://in.linkedin.com/in/chelimilla-naveen"
+  },
+  "homepage": "https://github.com/chnaveen138/custom-rate-limiters/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chnaveen138/custom-rate-limiters.git"
+  },
   "license": "MIT"
 }
