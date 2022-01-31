@@ -1,6 +1,6 @@
 {
   "name": "custom-rate-limiters",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Custom rate limiters",
   "main": "index.js",
   "scripts": {
