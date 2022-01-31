@@ -1,0 +1,11 @@
+{
+  "name": "custom-rate-limiters",
+  "version": "1.0.0",
+  "description": "Custom rate limiters",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Naveen",
+  "license": "ISC"
+}
