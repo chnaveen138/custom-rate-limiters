@@ -75,13 +75,13 @@ To get a local copy up and running follow these simple example steps.
 
 ### Installation
 
-* Cloning repo from GitHub:
-   ```sh
-   git clone https://github.com/chnaveen138/custom-rate-limiters.git
-   ```
 * Installing package from npm:
    ```sh
    npm install custom-rate-limiters
+   ```
+* Cloning repo from GitHub:
+   ```sh
+   git clone https://github.com/chnaveen138/custom-rate-limiters.git
    ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -99,24 +99,26 @@ const Redis = require("ioredis");
 const client = new Redis();
 ```
 
-### About middleware type rate limiters
+<br />
 
-Options for middleware type rate limiter:
-1. duration - Number of seconds for which requests info should be remembered.
-2. points - Maximum number of points that can be consumed over the duration window.
-3. amount - Number of points to be consumed for each request.
-4. keyGenerator - Function that generates unique identifer against which limit will be applied.
-5. handler - Function to handle the rejection. 
-6. limiterPrefix - Which prefix should be used for the redis keys created by this limiter.
-7. algorithm - Type of algorithm to be used for the rate limiter. Values can be - **"fixed-window"**, **"sliding-window"**, **"sliding-window-counter"**
-8. windowLogInterval - bucket size (Only applicable for sliding-window-counter algorithm)
-    window time is broken into small time intervals(buckets). Logs are maintained for each bucket.
+### About middleware type rate limiters
+`let rateLimiterMW = new CustomRateLimiterMiddleware(options);`
+#### Options for middleware type rate limiter:
+- `duration` - Number of seconds for which requests info should be remembered.
+- `points` - Maximum number of points that can be consumed over the duration window.
+- `amount` - Number of points to be consumed for each request.
+- `keyGenerator` - Function that generates unique identifer against which limit will be applied.
+- `handler` - Function to handle the rejection. 
+- `limiterPrefix` - Which prefix should be used for the redis keys created by this limiter.
+- `algorithm` - Type of algorithm to be used for the rate limiter. Values can be - `fixed-window`, `sliding-window`, `sliding-window-counter`
+- `windowLogInterval` - bucket size (Only applicable for sliding-window-counter algorithm).
+    Window time is broken into small time intervals(buckets). Logs are maintained for each bucket.
     If not provided, it will calculate suitable bucket size for the time window duration defined and use it as windowLogInterval.
     Refer sliding window counter algorithm for more details.
 
 <br />
 
-Default options for middleware type rate limiter:
+#### Default options for middleware type rate limiter:
 
 ```js
 {
@@ -135,7 +137,7 @@ Default options for middleware type rate limiter:
 
 #### Code samples
 
-Using middleware type ratelimiter with sliding window counter algorithm:
+##### Using middleware type ratelimiter with sliding window counter algorithm:
 ```js
 /*
  * Initializing middleware type ratelimiter with sliding window counter algorithm
@@ -169,44 +171,45 @@ app.get('/slidingwindowcountermw/:userId', swcRateLimiterMW, async (req, res) =>
 <br />
 
 ### About normal rate limiters
-
-Options for normal rate limiters:
-1. duration - Number of seconds for which requests info should be remembered.
-2. points - Maximum number of points that can be consumed over the duration window.
-3. limiterPrefix - Which prefix should be used for the redis keys created by this limiter.
-4. algorithm - Type of algorithm to be used for the rate limiter. Values can be - **"fixed-window"**, **"sliding-window"**, **"sliding-window-counter"**
-5. windowLogInterval - bucket size (Only applicable for sliding-window-counter algorithm)
-    window time is broken into small time intervals(buckets). Logs are maintained for each bucket.
+`let rateLimiter = new CustomRateLimiter(options);`
+#### Options for normal rate limiters:
+- `duration` - Number of seconds for which requests info should be remembered.
+- `points` - Maximum number of points that can be consumed over the duration window.
+- `limiterPrefix` - Which prefix should be used for the redis keys created by this limiter.
+- `algorithm` - Type of algorithm to be used for the rate limiter. Values can be - `fixed-window`, `sliding-window`, `sliding-window-counter`
+- `windowLogInterval` - bucket size (Only applicable for sliding-window-counter algorithm).
+    Window time is broken into small time intervals(buckets). Logs are maintained for each bucket.
     If not provided, it will calculate suitable bucket size for the time window duration defined and use it as windowLogInterval.
     Refer sliding window counter algorithm for more details.
 
 <br />
 
-Documentation about params of **"consume"** function:
-1. id - The identifier that need to be used to limit against.
-2. amount - How many points need to be consumed for the request.
-3. justCheck - To just check if limit can be satisifed or not without consuming points. 
-                Will be useful in validating multiple limits of a feature if any such requirement.
-4. opts:
-   * dPoints - Maximum number of points that can be consumed over time window. 
-               If not provided, it will use points value defined during initialization of current rate limiter.
+#### Documentation about params of `consume` function:
+`async consume(id, amount, justCheck = false, opts = {})`
+- `id` - The identifier that need to be used to limit against.
+- `amount` - How many points need to be consumed for the request.
+- `justCheck` - To just check if limit can be satisifed or not without consuming points. Will be useful in validating multiple limits of a feature if any such requirement.
+- `opts`
+	- `dPoints`             - Maximum number of points that can be consumed over time window. If not provided, it will use points value defined during initialization of current rate limiter.
 
-```js
- async consume(id, amount, justCheck = false, opts = {}) {
-  // CONSUMPTION CODE HERE
- }
-```
 <br />
 
+#### About `resultObj` of the rate limiter:
+```js
+let validateP = rateLimiter.consume(userId, undefined, false);
+return validateP
+        .then((resultObj) => {
+        })
+        .catch((resultObj) => {
+        });
+```
+- `allowed` - Number of points that are allowed in the current time window
+- `consumedPoints` - Number of points already consumed in the current time window
+- `remaining` - Remaining number of points that can be consumed in the current time window
+- `exceeded` - Exceeded points in the current time window
+- `consumed` - Are points consumed for the current request or not
 
-About result object of the rate limiter:
-1. allowed - Number of points that are allowed in the current time window
-2. consumedPoints - Number of points already consumed in the current time window
-3. remaining - Remaining number of points that can be consumed in the current time window
-4. exceeded - Exceeded points in the current time window
-5. consumed - Are points consumed for the current request or not
-
-Example result object:
+#### Example result object:
 ```js
 {
    "allowed":3,
@@ -217,9 +220,11 @@ Example result object:
 }
 ```
 
+<br />
+
 #### Code samples
 
-Using normal ratelimiter with sliding window counter algorithm:
+##### Using normal ratelimiter with sliding window counter algorithm:
 
 ```js
 /*
@@ -256,7 +261,7 @@ app.get('/slidingwindowcounter/:userId', async (req, res) => {
 ```
 <br />
 
-Implementation for validating multiple limits if any such requirement:
+##### Implementation for validating multiple limits if any such requirement:
 
 ```js
 /*
