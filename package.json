@@ -1,6 +1,6 @@
 {
   "name": "custom-rate-limiters",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Rate limiters that support multiple algorithms and can be used to validate multiple limits for a feature if needed  ",
   "main": "index.js",
   "scripts": {
