@@ -57,10 +57,10 @@
 Using this package, you can add rate-limiting functionality to your projects. Currently, it only supports Redis as DB but we will add support for other DBs as well in the future.
 
 Here's why this package is unique:
-* It supports multiple algorithms. Currently, you can choose between **fixed-window**, **sliding-window**, and **sliding-window-counter** algorithms.
-* You can define two types of rate limiters - Normal rate limiters and rate limiters which can be used as middleware validations. Please refer <a href="#usage">usage section</a> for the code samples.
-* It supports such kind of implementation where you can validate multiple rate limits for a feature if you have any such requirement. Please refer <a href="#usage">usage section</a> for the code samples.
-* No dependencies with other packages. So you need not worry about security vulnerabilities.
+- It supports multiple algorithms. Currently, you can choose between **fixed-window**, **sliding-window**, and **sliding-window-counter** algorithms.
+- You can define two types of rate limiters - Normal rate limiters and rate limiters which can be used as middleware validations. Please refer <a href="#usage">usage section</a> for the code samples.
+- It supports such kind of implementation where you can validate multiple rate limits for a feature if you have any such requirement. Please refer <a href="#usage">usage section</a> for the code samples.
+- No dependencies with other packages. So you need not worry about security vulnerabilities.
 
 We'll be adding support to more DBs and algorithms soon. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people who have contributed to expanding this template!
 
@@ -102,11 +102,14 @@ const client = new Redis();
 <br />
 
 ### About middleware type rate limiters
+`let CustomRateLimiterMiddleware = require('custom-rate-limiters').CustomRateLimiterMiddleware;`
+<br />
 `let rateLimiterMW = new CustomRateLimiterMiddleware(options);`
 #### Options for middleware type rate limiter:
 - `duration` - Number of seconds for which requests info should be remembered.
 - `points` - Maximum number of points that can be consumed over the duration window.
 - `amount` - Number of points to be consumed for each request.
+- `redisClient` - Redis client that need to be used to store keys.(We recommend you to create redis client using `ioredis`).
 - `keyGenerator` - Function that generates unique identifer against which limit will be applied.
 - `handler` - Function to handle the rejection. 
 - `limiterPrefix` - Which prefix should be used for the redis keys created by this limiter.
@@ -139,6 +142,10 @@ const client = new Redis();
 
 ##### Using middleware type ratelimiter with sliding window counter algorithm:
 ```js
+const Redis = require("ioredis");
+const client = new Redis();
+let CustomRateLimiterMiddleware = require('custom-rate-limiters').CustomRateLimiterMiddleware;
+
 /*
  * Initializing middleware type ratelimiter with sliding window counter algorithm
  * Here windowloginterval duration is defined as 1 second. If you are not sure what to define, let the default
@@ -171,11 +178,14 @@ app.get('/slidingwindowcountermw/:userId', swcRateLimiterMW, async (req, res) =>
 <br />
 
 ### About normal rate limiters
+`let CustomRateLimiter = require('custom-rate-limiters').CustomRateLimiter;`
+<br />
 `let rateLimiter = new CustomRateLimiter(options);`
 #### Options for normal rate limiters:
 - `duration` - Number of seconds for which requests info should be remembered.
 - `points` - Maximum number of points that can be consumed over the duration window.
 - `limiterPrefix` - Which prefix should be used for the redis keys created by this limiter.
+- `redisClient` - Redis client that need to be used to store keys.(We recommend you to create redis client using `ioredis`).
 - `algorithm` - Type of algorithm to be used for the rate limiter. Values can be - `fixed-window`, `sliding-window`, `sliding-window-counter`
 - `windowLogInterval` - bucket size (Only applicable for sliding-window-counter algorithm).
     Window time is broken into small time intervals(buckets). Logs are maintained for each bucket.
@@ -224,9 +234,13 @@ return validateP
 
 #### Code samples
 
-##### Using normal ratelimiter with sliding window counter algorithm:
+#### Using normal ratelimiter with sliding window counter algorithm:
 
 ```js
+const Redis = require("ioredis");
+const client = new Redis();
+let CustomRateLimiter = require('custom-rate-limiters').CustomRateLimiter;
+
 /*
  * Initializing middleware type ratelimiter with sliding window counter algorithm
  * Here windowloginterval duration is defined as 2 second. If you are not sure what to define, let the default
@@ -261,9 +275,13 @@ app.get('/slidingwindowcounter/:userId', async (req, res) => {
 ```
 <br />
 
-##### Implementation for validating multiple limits if any such requirement:
+#### Implementation for validating multiple limits if any such requirement:
 
 ```js
+const Redis = require("ioredis");
+const client = new Redis();
+let CustomRateLimiter = require('custom-rate-limiters').CustomRateLimiter;
+
 /*
    If you need to have multiple limits for a feature, then you can checkout the below code sample of
    how to use ratelimiters to validate multiple limits.
@@ -325,7 +343,7 @@ Don't forget to give the project a star! Thanks again!
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+Distributed under the MIT License. See `LICENSE` file for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
